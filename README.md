@@ -1,3 +1,5 @@
+![image](https://github.com/user-attachments/assets/53bd0fec-c557-47ce-b532-0ed61ca1f7c0)
+
 # Change Default Search Engine
 
 ## Overview
