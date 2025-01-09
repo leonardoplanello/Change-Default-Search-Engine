@@ -1,0 +1,29 @@
+{
+    "name": "Change Default Search Engine",
+    "description": "Extensão para alterar o mecanismo de busca padrão no Chrome.",
+    "version": "1.1",
+    "manifest_version": 3,
+    "permissions": [
+      "storage",
+      "activeTab",
+      "scripting"
+    ],
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "background": {
+      "service_worker": "background.js"
+    },
+  
+    "chrome_settings_overrides": {
+      "search_provider": {
+        "name": "Change Default Search Engine",
+        "keyword": "cdse",
+        "search_url": "https://www.google.com/search?q=%s",
+        "favicon_url": "https://www.google.com/favicon.ico",
+        "encoding": "UTF-8",
+        "is_default": true
+      }
+    }
+  }
+  
