@@ -1,7 +1,7 @@
 {
   "name": "Change Default Search Engine",
-  "description": "Extensão para alterar o mecanismo de busca padrão no Chrome, agora com toggle switch e idioma russo reforçado.",
-  "version": "1.2",
+  "description": "Extensão dinâmica para alterar o mecanismo de busca no Chrome via API, com toggle e sem interferir quando desligada.",
+  "version": "2.0",
   "manifest_version": 3,
 
   "permissions": [
@@ -16,16 +16,5 @@
 
   "background": {
     "service_worker": "background.js"
-  },
-
-  "chrome_settings_overrides": {
-    "search_provider": {
-      "name": "Change Default Search Engine",
-      "keyword": "cdse",
-      "search_url": "https://www.google.com/search?q=%s",
-      "favicon_url": "https://www.google.com/favicon.ico",
-      "encoding": "UTF-8",
-      "is_default": true
-    }
   }
 }
