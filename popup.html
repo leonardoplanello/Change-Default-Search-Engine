@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Change Default Search Engine (Dynamic)</title>
+  <meta charset="UTF-8" />
+  <title>Force Overwrite DuckDuckGo</title>
   <style>
     body {
       font-family: sans-serif;
@@ -34,11 +34,6 @@
       font-size: 14px;
       color: green;
     }
-    .warning {
-      color: red;
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
     .switch {
       position: relative;
       display: inline-block;
@@ -47,26 +42,29 @@
       margin-bottom: 10px;
     }
     .switch input {
-      opacity: 0; 
+      opacity: 0;
       width: 0; 
       height: 0;
     }
     .slider {
       position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
+      cursor: pointer; 
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0;
       background-color: #ccc;
       transition: .4s;
       border-radius: 34px;
     }
     .slider:before {
-      position: absolute;
-      content: "";
+      position: absolute; 
+      content: ""; 
       height: 26px; 
       width: 26px; 
       left: 4px; 
-      bottom: 4px;
-      background-color: white;
+      bottom: 4px; 
+      background-color: white; 
       transition: .4s;
       border-radius: 50%;
     }
@@ -79,32 +77,16 @@
   </style>
 </head>
 <body>
-  <h1 id="title">Change Default Search Engine (Dynamic)</h1>
+  <h1 id="title">Force Overwrite DuckDuckGo</h1>
 
-  <p class="warning" id="conflictWarning" style="display: none;">
-    <!-- Texto atualizado via JS para alertar sobre conflito com DuckDuckGo ou API indisponível -->
-  </p>
-
-  <label id="extensionToggleLabel" style="display:block; margin-bottom:5px;">
-    Extension Enabled:
-  </label>
+  <label id="extensionToggleLabel">Extension Enabled:</label>
   <label class="switch">
-    <input type="checkbox" id="extensionToggleCheckbox" checked>
+    <input type="checkbox" id="extensionToggleCheckbox" checked />
     <span class="slider"></span>
   </label>
 
-  <label for="languageSelect" id="languageLabel">Select Language:</label>
-  <select id="languageSelect">
-    <option value="en">English</option>
-    <option value="pt">Português</option>
-    <option value="zh">中文</option>
-    <option value="ru">Русский</option>
-    <option value="it">Italiano</option>
-    <option value="fr">Français</option>
-    <option value="es">Español</option>
-  </select>
-
-  <label for="engineSelect" id="engineLabel">Select Search Engine:</label>
+  <!-- Se quiser permitir escolher outro motor, podemos usar a API searchEngines no popup.js -->
+  <label for="engineSelect" id="engineLabel">Select Search Engine (dynamic attempt):</label>
   <select id="engineSelect">
     <option value="https://www.google.com/search?q=%s">Google</option>
     <option value="https://www.bing.com/search?q=%s">Bing</option>
@@ -112,10 +94,7 @@
     <option value="https://duckduckgo.com/?q=%s">DuckDuckGo</option>
   </select>
 
-  <label for="customUrl" id="customUrlLabel">Or enter a custom URL:</label>
-  <input type="text" id="customUrl" placeholder="Ex: https://example.com/search?q=%s" />
-
-  <button id="applyButton">Apply</button>
+  <button id="applyButton">Apply (Dynamic)</button>
 
   <div class="status" id="statusMessage"></div>
 

@@ -109,116 +109,67 @@ const translations = {
 };
 
 let currentLanguage = 'en';
+// popup.js
 
-// Referências aos elementos do popup
-const toggleCheckbox = document.getElementById('extensionToggleCheckbox');
-const statusElement = document.getElementById('statusMessage');
-const conflictWarningEl = document.getElementById('conflictWarning');
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleCheckbox = document.getElementById("extensionToggleCheckbox");
+  const applyButton = document.getElementById("applyButton");
+  const statusMessage = document.getElementById("statusMessage");
+  const engineSelect = document.getElementById("engineSelect");
 
-// Carrega configurações salvas
-chrome.storage.sync.get(['language', 'extensionEnabled'], (result) => {
-  if (result.language && translations[result.language]) {
-    currentLanguage = result.language;
-  }
-  document.getElementById('languageSelect').value = currentLanguage;
-  translateUI(currentLanguage);
-
-  if (typeof result.extensionEnabled === 'boolean') {
-    toggleCheckbox.checked = result.extensionEnabled;
-  } else {
-    // Se não existir no storage, assume que está habilitado por padrão
-    toggleCheckbox.checked = true;
-  }
-});
-
-// Lidar com mudança de idioma
-document.getElementById("languageSelect").addEventListener("change", (event) => {
-  const selectedLang = event.target.value;
-  if (translations[selectedLang]) {
-    currentLanguage = selectedLang;
-    chrome.storage.sync.set({ language: currentLanguage }, () => {
-      translateUI(currentLanguage);
-    });
-  }
-});
-
-// Lidar com mudança de toggle
-toggleCheckbox.addEventListener('change', () => {
-  const isEnabled = toggleCheckbox.checked;
-  chrome.storage.sync.set({ extensionEnabled: isEnabled }, () => {
-    if (!isEnabled) {
-      // Se extensão desativada, não faz nada
-      showStatus(translations[currentLanguage].statusDisabled);
+  // Carrega config do storage
+  chrome.storage.sync.get(['extensionEnabled'], (res) => {
+    if (typeof res.extensionEnabled === 'boolean') {
+      toggleCheckbox.checked = res.extensionEnabled;
     } else {
-      // Se a extensão for ativada novamente, apenas avisamos o usuário
-      // Ele deve clicar em "Apply" para efetivamente alterar o motor de busca
-      showStatus("Extension enabled. Click Apply to set the search engine.");
+      // se não definido, assume true
+      toggleCheckbox.checked = true;
     }
   });
-});
 
-// Ao clicar no botão "Apply"
-document.getElementById("applyButton").addEventListener("click", async () => {
-  const isEnabled = toggleCheckbox.checked;
-  const t = translations[currentLanguage];
+  toggleCheckbox.addEventListener('change', () => {
+    const isEnabled = toggleCheckbox.checked;
+    chrome.storage.sync.set({ extensionEnabled: isEnabled }, () => {
+      if (!isEnabled) {
+        showStatus("Extension OFF. We'll stop forcing Overwrite on DuckDuckGo.");
+      } else {
+        showStatus("Extension ON. We'll force Overwrite on DuckDuckGo (via manifest + background).");
+      }
+    });
+  });
 
-  if (!isEnabled) {
-    // Se estiver desativada, não faz nada.
-    showStatus(t.statusDisabled);
-    return;
-  }
-
-  // Obtém o URL do mecanismo escolhido
-  const selectedEngine = document.getElementById("engineSelect").value;
-  const customEngine = document.getElementById("customUrl").value.trim();
-  const newSearchUrl = customEngine !== "" ? customEngine : selectedEngine;
-
-  try {
-    // Verifica se chrome.searchEngines existe
-    if (!chrome.searchEngines) {
-      // API não disponível
-      conflictWarningEl.style.display = 'block';
-      conflictWarningEl.innerText = t.conflictWarning;
-      showStatus(t.statusFallback);
+  applyButton.addEventListener('click', async () => {
+    const isEnabled = toggleCheckbox.checked;
+    if (!isEnabled) {
+      showStatus("Extension is OFF. Turn it ON first.");
       return;
     }
 
-    // Tenta definir o mecanismo de busca
-    await chrome.searchEngines.setDefault({
-      name: "Change Default Search Engine (Dynamic)",
-      keyword: "cdse",
-      url: newSearchUrl
-    });
+    // Tentar trocar dinamicamente
+    if (!chrome.searchEngines) {
+      // Em muitos Chromes públicos, a API é indisponível
+      showStatus("Dynamic change not possible (API chrome.searchEngines missing). " + 
+        "But manifest is set to override. If DuckDuckGo reappears, reinstall or update this extension last.");
+      return;
+    }
 
-    // Se houver outra extensão (ex.: DuckDuckGo) que tente fazer override,
-    // ela pode sobrescrever após algum tempo. Podemos avisar:
-    conflictWarningEl.style.display = 'block';
-    conflictWarningEl.innerText = t.conflictWarning;
+    const newUrl = engineSelect.value;
+    try {
+      await chrome.searchEngines.setDefault({
+        name: "Change Default Search Engine Overwrites DuckDuckGo",
+        keyword: "cdse",
+        url: newUrl
+      });
+      showStatus("Successfully set engine to: " + newUrl);
+    } catch (err) {
+      showStatus("Error setting engine: " + err.message);
+    }
+  });
 
-    showStatus(t.statusSuccess);
-
-  } catch (error) {
-    conflictWarningEl.style.display = 'block';
-    conflictWarningEl.innerText = t.conflictWarning;
-    showStatus(t.statusError + error.message);
+  function showStatus(msg) {
+    statusMessage.innerText = msg;
+    setTimeout(() => {
+      statusMessage.innerText = "";
+    }, 5000);
   }
 });
-
-function translateUI(lang) {
-  const tr = translations[lang] || translations['en'];
-  document.getElementById('title').innerText = tr.title;
-  document.getElementById('extensionToggleLabel').innerText = tr.extensionToggleLabel;
-  document.getElementById('languageLabel').innerText = tr.languageLabel;
-  document.getElementById('engineLabel').innerText = tr.engineLabel;
-  document.getElementById('customUrlLabel').innerText = tr.customUrlLabel;
-  document.getElementById('applyButton').innerText = tr.applyButton;
-  // placeholder
-  document.getElementById('customUrl').placeholder = tr.customUrlLabel;
-}
-
-function showStatus(msg) {
-  statusElement.innerText = msg;
-  setTimeout(() => {
-    statusElement.innerText = "";
-  }, 5000);
-}
